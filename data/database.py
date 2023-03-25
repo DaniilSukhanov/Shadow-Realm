@@ -18,6 +18,13 @@ class MultipleSession(DatabaseError):
 
 
 class Database:
+    """Класс для подключения к базе данных и создавания сессии с ней.
+    Класс реализован на паттерне Singleton. Создание сессии происходит
+    с помощью оператора with:
+    with Database() as session:
+        ...
+    """
+
     __instance = None
     __factory = None
     __current_session = None
@@ -42,6 +49,8 @@ class Database:
 
     @classmethod
     def connect(cls, filepath: str):
+        """Создает подключение к базе данных. База данных должна быть
+        Sqlite."""
         conn_str = f'sqlite:///{filepath.strip()}?check_same_thread=False'
         engine = sa.create_engine(conn_str, echo=False)
         factory = orm.sessionmaker(bind=engine)
