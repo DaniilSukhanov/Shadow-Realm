@@ -1,5 +1,5 @@
 import pandas as pd
-import const
+from . import const
 
 
 class ExcelError(Exception):

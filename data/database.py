@@ -54,8 +54,7 @@ class Database:
         conn_str = f'sqlite:///{filepath.strip()}?check_same_thread=False'
         engine = sa.create_engine(conn_str, echo=False)
         factory = orm.sessionmaker(bind=engine)
-        if __name__ != "__main__":
-            from . import _all_models
+        from . import _all_models
         SqlAlchemyBase.metadata.create_all(engine)
         cls.__factory = factory
         cls.__instance = super().__new__(cls)
