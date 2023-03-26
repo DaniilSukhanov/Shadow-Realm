@@ -55,8 +55,8 @@ def index():
             .filter(model.User.yandex_user_id == user_id).first()
     if user is None:
         register(response)
-    else:
-        response["response"]["text"] = "+"
+        return json.dumps(response)
+    response["response"]["text"] = "+"
     return json.dumps(response)
 
 
