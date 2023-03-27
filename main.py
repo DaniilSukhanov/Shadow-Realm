@@ -1,13 +1,14 @@
-from pprint import pprint
-
 from flask import request, Flask
 import json
 from data.database import Database
 import data._all_models as model
 import parser_excel as pe
+from data.tools import get_user
+import pickle
 
 
 app = Flask(__name__)
+excel = pe.ParserExcel("excel.xlsx")
 
 
 def register(response: dict, __draft_usernames={}):
@@ -19,21 +20,26 @@ def register(response: dict, __draft_usernames={}):
             with Database() as session:
                 user = model.User()
                 user.yandex_user_id = user_id
-                user.username = text_user
+                user.username = __draft_usernames[user_id]
                 user.current_excel_sheet = pe.const.ENTRY_POINT_NAME
                 user.current_excel_table = pe.const.MAIN_EXCEL_FILENAME
                 user.current_row_excel_table = 0
+                user.serialized_stack_positions = pickle.dumps([])
                 session.add(user)
                 session.commit()
-            response["response"]["text"] = "Вы зарегистрированы!"
+            response["response"]["text"] = "Для начало введите любой символ"
         else:
-            response["response"]["text"] = "Зарегистрируйтесь. Введите имя."
+            response["response"]["text"] = "Добро пожаловать в мир нашей RPG игры \"Царство теней\"! Как тебя звать смелый авантюрист, который готов взглянуть в лицо опасности?"
         del __draft_usernames[user_id]
     elif text_user:
         __draft_usernames[user_id] = text_user
-        response["response"]["text"] = f"Вы уверены в выборе \"{text_user}\""
+        response["response"]["text"] = f"Вы \"{text_user}\", я правильно раслышала?"
+        response["response"]["buttons"] = [
+            {"title": "Нет", "hide": True},
+            {"title": "Да", "hide": True}
+        ]
     else:
-        response["response"]["text"] = "Зарегистрируйтесь. Введите имя."
+        response["response"]["text"] = "Добро пожаловать в мир нашей RPG игры \"Царство теней\"! Как тебя звать смелый авантюрист, который готов взглянуть в лицо опасности?"
 
 
 @app.route("/", methods=["POST"])
@@ -50,13 +56,16 @@ def index():
         response["response"]["text"] = "Вы должны зайти в Яндекс ID"
         return json.dumps(response)
     user_id = user["user_id"]
-    with Database() as session:
-        user = session.query(model.User) \
-            .filter(model.User.yandex_user_id == user_id).first()
+    user = get_user(user_id)
     if user is None:
         register(response)
         return json.dumps(response)
-    response["response"]["text"] = "+"
+    if user.current_row_excel_table == 0:
+        excel.send_message(user_id, response)
+        excel.next_step(user_id)
+    else:
+        excel.next_step(user_id)
+        excel.send_message(user_id, response)
     return json.dumps(response)
 
 
