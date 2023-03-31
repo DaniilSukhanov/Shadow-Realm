@@ -6,7 +6,7 @@ import pickle
 from data.tools import get_user
 
 
-class ExcelError(Exception):
+class ExcelError(Exception):  #tgntoisgjoitj[otjgjo
     pass
 
 
