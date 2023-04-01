@@ -5,10 +5,11 @@ import data._all_models as model
 import parser_excel as pe
 from data.tools import get_user
 import pickle
+from parser_excel import const
 
 
 app = Flask(__name__)
-excel = pe.ParserExcel("excel.xlsx")
+excel = pe.ParserExcel(const.MAIN_EXCEL_FILENAME)
 
 
 def register(response: dict, __draft_usernames={}):
