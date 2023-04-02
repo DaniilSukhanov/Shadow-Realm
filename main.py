@@ -36,8 +36,8 @@ def register(response: dict, __draft_usernames={}):
         __draft_usernames[user_id] = text_user
         response["response"]["text"] = f"Вы \"{text_user}\", я правильно раслышала?"
         response["response"]["buttons"] = [
-            {"title": "Нет", "hide": True},
-            {"title": "Да", "hide": True}
+            {"title": "Да", "hide": True},
+            {"title": "Нет", "hide": True}
         ]
     else:
         response["response"]["text"] = "Добро пожаловать в мир нашей RPG игры \"Царство теней\"! Как тебя звать смелый авантюрист, который готов взглянуть в лицо опасности?"
@@ -60,6 +60,15 @@ def index():
     user = get_user(user_id)
     if user is None:
         register(response)
+        return json.dumps(response)
+    user_text = request.json["request"]["original_utterance"]
+    if user_text == "Что ты умеешь?":
+        response["response"]["text"] = "Я рассказчик. Я могу перемещать твоего героя куда ты скажешь."
+        response["response"]["buttons"] = [{"title": "Понятно", "hide": True}]
+        return json.dumps(response)
+    if user_text == "Помощь":
+        response["response"]["text"] = "Путешествуй с помощь подсказок, которые появляються при возникновении нового сообщения."
+        response["response"]["buttons"] = [{"title": "Понятно", "hide": True}]
         return json.dumps(response)
     if user.current_row_excel_table == 0:
         excel.send_message(user_id, response)

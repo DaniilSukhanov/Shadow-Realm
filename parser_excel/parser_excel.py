@@ -27,16 +27,18 @@ class ParserExcel:
     def send_message(self, user_id: str, response: dict):
         user = get_user(user_id)
         sheet = self.excel_table[user.current_excel_sheet]
-
         text, choice, *_ = sheet.values[user.current_row_excel_table]
         response["response"]["text"] = text
         if isinstance(choice, str):
-            response["response"]["buttons"] = [
+            buttons = [
                 {
                     "title": string.split(":")[0],
                     "hide": True,
                 } for string in choice.split(";")
-        ]
+            ]
+            buttons.append({"title": "Что ты умеешь?", "hide": True})
+            buttons.append({"title": "Помощь", "hide": True})
+            response["response"]["buttons"] = buttons
 
     def next_step(self, user_id: str):
         user = get_user(user_id)
@@ -45,7 +47,7 @@ class ParserExcel:
         current_row = sheet.values[user.current_row_excel_table]
         next_sheet = user.current_excel_sheet
         next_row = user.current_row_excel_table + 1
-        if next_row > len(sheet) - 1:
+        if next_row >= len(sheet):
             if user.current_excel_sheet == const.ENTRY_POINT_NAME:
                 next_row = 0
             elif stack:
@@ -55,7 +57,7 @@ class ParserExcel:
         else:
             _, choice, *_ = current_row
             choice: str
-            if type(choice) is str:
+            if type(choice) is str and ":" in choice:
                 transitions = dict(
                     map(lambda x: x.split(":"), choice.split(";"))
                 )
@@ -67,6 +69,7 @@ class ParserExcel:
                         next_row = int(result)
                         next_sheet = user.current_excel_sheet
                     else:
+                        print(0)
                         next_row = 0
                         next_sheet = result
                         stack.append((user.current_excel_sheet, user.current_row_excel_table + 1))
