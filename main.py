@@ -28,7 +28,7 @@ def register(response: dict, __draft_usernames={}):
                 user.serialized_stack_positions = pickle.dumps([])
                 session.add(user)
                 session.commit()
-            response["response"]["text"] = "Для начало введите любой символ"
+            excel.send_message(user_id, response)
         else:
             response["response"]["text"] = "Добро пожаловать в мир нашей RPG игры \"Царство теней\"! Как тебя звать смелый авантюрист, который готов взглянуть в лицо опасности?"
         del __draft_usernames[user_id]
@@ -70,12 +70,8 @@ def index():
         response["response"]["text"] = "Путешествуй с помощь подсказок, которые появляються при возникновении нового сообщения."
         response["response"]["buttons"] = [{"title": "Понятно", "hide": True}]
         return json.dumps(response)
-    if user.current_row_excel_table == 0:
-        excel.send_message(user_id, response)
-        excel.next_step(user_id)
-    else:
-        excel.next_step(user_id)
-        excel.send_message(user_id, response)
+    excel.next_step(user_id)
+    excel.send_message(user_id, response)
     return json.dumps(response)
 
 

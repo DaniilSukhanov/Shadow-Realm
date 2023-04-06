@@ -69,7 +69,6 @@ class ParserExcel:
                         next_row = int(result)
                         next_sheet = user.current_excel_sheet
                     else:
-                        print(0)
                         next_row = 0
                         next_sheet = result
                         stack.append((user.current_excel_sheet, user.current_row_excel_table + 1))
