@@ -43,7 +43,6 @@ def register(response: dict, __draft_usernames={}):
         response["response"]["text"] = "Добро пожаловать в мир нашей RPG игры \"Царство теней\"! Как тебя звать смелый авантюрист, который готов взглянуть в лицо опасности?"
 
 
-@app.route("/", methods=["POST"])
 def index():
     response = {
         'session': request.json['session'],
@@ -75,6 +74,4 @@ def index():
     return json.dumps(response)
 
 
-if __name__ == "__main__":
-    Database.connect("db/db.db")
-    app.run(port=8080)
+Database.connect("db/db.db")
